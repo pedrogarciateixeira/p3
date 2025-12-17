@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Desenhar e Guardar</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 500px; margin: 0 auto; padding: 25px; border-radius: 12px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
+        
+        #meuCanvas { 
+            width: 100%; 
+            height: 300px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            cursor: crosshair; 
+            background: #fff;
+            touch-action: none;
+        }
+        
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; }
+        input[type="text"] { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        
+        .btn-group { margin-top: 20px; }
+        button { width: 100%; padding: 12px; margin-bottom: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        
+        .btn-save { background-color: #28a745; color: white; }
+        .btn-save:hover { background-color: #218838; }
+        .btn-clear { background-color: #6c757d; color: white; }
+        .btn-clear:hover { background-color: #5a6268; }
+        .btn-view { background-color: #007bff; color: white; margin-top: 10px; }
+        
+        hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📝 Criar Memória</h2>
+
+    <form id="formDesenho" method="post" action="processar.php">
+        <input type="hidden" name="acao" value="salvar">
+        <input type="hidden" id="dados_svg" name="dados_svg">
+
+        <label>Desenhe no quadro abaixo:</label>
+        <canvas id="meuCanvas" resize></canvas>
+        
+        <button type="button" class="btn-clear" onclick="limparCanvas()">Limpar Quadro</button>
+
+        <label for="palavra">Palavra Relacionada:</label>
+        <input type="text" id="palavra" name="palavra" placeholder="Ex: Casa, Árvore, Gato..." required>
+        
+        <button type="submit" class="btn-save" onclick="prepararEnvio()">Salvar na Memória</button>
+    </form>
+    
+    <hr>
+    
+    <form method="post" action="processar.php">
+        <input type="hidden" name="acao" value="mostrar">
+        <button type="submit" class="btn-view">📖 Ver Galeria de Memórias</button>
+    </form>
+
+    <div class="challenge-section">
+        <h3>✨ Desafios</h3>
+        
+        <form method="post" action="processar.php">
+            <input type="hidden" name="acao" value="correspondentes">
+            <button type="submit" class="btn-challenge">Ligar Pares Certos</button>
+        </form>
+
+        <form method="post" action="processar.php">
+            <input type="hidden" name="acao" value="misturados">
+            <button type="submit" class="btn-mix">Ligar Pares Aleatórios</button>
+        </form>
+
+        <form method="post" action="processar.php">
+            <input type="hidden" name="acao" value="aleatorios">
+            <button type="submit" class="btn-random">Pares Caoticos</button>
+        </form>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    // Configurar o Paper.js no Canvas
+    paper.setup('meuCanvas');
+    var path;
+
+    var tool = new paper.Tool();
+    
+    tool.onMouseDown = function(event) {
+        path = new paper.Path();
+        path.strokeColor = '#1a73e8';
+        path.strokeWidth = 4;
+        path.strokeCap = 'round';
+        path.add(event.point);
+    }
+
+    tool.onMouseDrag = function(event) {
+        path.add(event.point);
+    }
+
+    function limparCanvas() {
+        paper.project.activeLayer.removeChildren();
+        paper.view.draw();
+    }
+
+    function prepararEnvio() {
+        // Exporta o desenho como string SVG
+        var svgString = paper.project.exportSVG({asString: true, bounds: 'content'});
+        document.getElementById('dados_svg').value = svgString;
+    }
+</script>
+
+</body>
+</html>

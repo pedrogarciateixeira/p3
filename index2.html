@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Container com Parallax Horizontal</title>
+
+    <style>
+        :root {
+            --max-aspect-ratio: calc(1920 / 1080);
+            --min-aspect-ratio: calc(1080 / 1920);
+        }
+
+        body,
+        html,
+        main {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            /* Remover 'overflow: hidden' de body para o efeito de centralização da janela */
+            overflow: hidden;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: darkred;
+        }
+
+        .container {
+            position: relative;
+            width: 90vw;
+            height: 90vh;
+            /* Lógica de Aspect Ratio Mantida */
+            max-width: min(90vw, calc(90vh * var(--max-aspect-ratio)));
+            max-height: min(90vh, calc(90vw / var(--min-aspect-ratio)));
+
+            /* CRUCIAL: Mantido para conter os SVGs */
+            overflow: hidden;
+
+            /* Estilos visuais */
+            background-color: beige;
+            color: black;
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: center;
+            font-family: sans-serif;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border: 0px solid beige;
+        }
+
+        /* Pseudo-elemento para o efeito de 'glow'/sombra interna */
+        .container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            background-color: transparent;
+
+            /* Aplica o 'inset box-shadow' no pseudo-elemento que está POR CIMA de tudo. */
+            box-shadow:
+                inset 0 0 50px 50px rgba(245, 245, 220, 1);
+
+            border-radius: 0px;
+            pointer-events: none;
+
+            /* Z-Index ELEVADO para ficar acima de todo o conteúdo */
+            z-index: 20;
+        }
+
+
+        /* ---------------------------------------------------- */
+        /* Estilos para os SVGs (Camadas) - AGORA COM TRANSIÇÃO */
+        /* ---------------------------------------------------- */
+        .svg-layer {
+            /* Definido para ter o mesmo tamanho do container pai */
+            width: 100%;
+            height: 100%;
+            position: absolute;
+
+            /* Centralização Garantida, AGORA A BASE DO MOVIMENTO */
+            top: 50%;
+            left: 50%;
+            /* Importante: Transformação inicial, será alterada pelo JS */
+            transform: translate(-50%, -50%);
+
+            pointer-events: none;
+            display: none;
+            opacity: 1;
+            /* Adiciona uma transição suave para o movimento */
+            transition: transform 0.2s ease-out, opacity 0.5s ease-in-out;
+            /* Adicionado opacity */
+
+        }
+
+        .layer-hidden {
+            opacity: 0;
+        }
+
+        /* Ordem Z (apenas para organização) */
+        #layer-1 {
+            z-index: 1;
+        }
+
+        /* Mais Longe, se move MENOS */
+
+
+        /* Meio, se move MÉDIO */
+        #layer-3 {
+            z-index: 3;
+        }
+
+        /* Mais Perto, se move MAIS */
+
+
+        /* O elemento SVG deve preencher toda a sua camada */
+        .layer-image {
+            width: auto;
+            height: 100%;
+            position: absolute;
+            right: 50%;
+            /* Centraliza o SVG na camada. Mantenha 'transform: translateX(50%)' APENAS AQUI para centralização inicial do SVG DENTRO da camada */
+            transform: translateX(50%);
+            isolation: isolate;
+        }
+
+
+        #layer-2 {
+            z-index: 10;
+            width: auto;
+            height: 30%;
+            display: none;
+
+        }
+
+
+
+        .content {
+            /* Ajustado para simplesmente flutuar sobre o container */
+            position: absolute;
+
+            /* Herda as limitações do container para ter a mesma área visual */
+            width: 90vw;
+            height: 90vh;
+            max-width: min(90vw, calc(90vh * var(--max-aspect-ratio)));
+            max-height: min(90vh, calc(90vw / var(--min-aspect-ratio)));
+
+display: none;
+            color: darkred;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+
+            border-radius: 10px;
+            /* Remova width: fit-content e height: fit-content para manter a área de conteúdo consistente */
+
+            z-index: 100;
+
+        }
+
+        .content .legenda {
+            font-size: clamp(28px, 2vw, 36px);
+            position: relative;
+            /* Centraliza a legenda na vertical */
+            margin-top: calc(45vh - 20px);
+        }
+
+        #contorno {
+            /* O contorno deve ter o mesmo valor de color de fundo do container/body (beige/darkred) */
+            -webkit-text-stroke: 2px beige;
+            color: darkred;
+            /* Cor de preenchimento do texto */
+        }
+
+        #legenda {
+            color: darkred;
+            /* Cor normal do texto */
+        }
+
+        .inputPalavra {
+            color: rgb(0, 102, 255);
+        }
+
+        h1 {
+            font-size: clamp(40px, 12vw, 80px);
+            margin: 0;
+            padding: 0;
+            line-height: 1.1;
+        }
+        h2 {
+            font-size: clamp(12px, 6vw, 36px);
+            margin: 0;
+            padding: 0;
+            margin-top: 10px;
+        }
+        #titulo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            z-index: 15;
+            color: darkred;
+            text-align: center;
+            width: 80%;
+        }
+
+        .gill {
+            font-family: 'Gill Sans', sans-serif;
+            color: rgb(9, 136, 220);
+        }
+
+        .gara {
+            font-family: 'Garamond', serif;
+            color: darkred;
+        }
+    </style>
+</head>
+
+<body>
+    <main id="main">
+
+
+        <div class="container" id="parallax-container">
+
+
+            <div class="svg-layer" id="layer-1" data-speed="20">
+                <img src=" " alt="Camada 1 do Fundo" class="layer-image">
+            </div>
+
+            <div class="svg-layer" id="layer-2" data-speed="50">
+                <img src=" " alt="Camada 2 do Meio" class="layer-image">
+            </div>
+
+            <div class="svg-layer" id="layer-3" data-speed="80">
+                <img src=" " alt="Camada 3 da Frente" class="layer-image">
+            </div>
+
+<div id="titulo">
+    <h1 class="gara">Lamb to<br>the Slaughter</h1>
+    <h2 class="gill">The Interactive Story</h2>
+<button onclick="iniciarExperiencia();">Start</button>
+</div>
+            
+
+
+        </div>
+
+        <div class="content">
+            <div>
+                <p id="contorno" class="legenda"> </p>
+
+            </div>
+
+        </div>
+
+        <div class="content">
+            <div>
+                <p id="legenda" class="legenda"> </p>
+
+            </div>
+        </div>
+
+    </main>
+
+
+    <script>
+        
+let start=false;
+
+        // Variáveis de estado
+        let sceneData = [];
+        let inputsData = [];
+        let userInputData = [];
+        let inputScene = {
+            palavra: "",
+            artigo: "",
+            svg: "",
+            inputID_SVG: "",
+            inputID_Palavra: "",
+        };
+
+        let currentIndex = 0;
+        let currentAudio = new Audio(); // Objeto de áudio global
+        let currentBGAudio = new Audio(); // Objeto de áudio BG global
+
+        let isTransitioning = false; // Bloqueia cliques múltiplos durante a animação
+
+        let randomScale = 0;
+
+        const inputNum = 6; // Número de inputs a considerar
+
+
+
+
+
+
+        const layers = document.querySelectorAll('.svg-layer');
+        const imgLayer1 = document.querySelector('#layer-1 img');
+        const imgLayer2 = document.querySelector('#layer-2 img');
+        const imgLayer3 = document.querySelector('#layer-3 img');
+        const textoContorno = document.getElementById('contorno');
+        const textoLegenda = document.getElementById('legenda');
+
+        function iniciarExperiencia() {
+    start = true;
+    loadData();
+    // Esconde o menu de título
+    
+
+    // Inicia o carregamento dos dados
+    
+}
+        
+        async function loadData() {
+            try {
+                const response_legendas = await fetch('get_data_legendas.php');
+                sceneData = await response_legendas.json();
+                const response_galeria = await fetch('get_data_galeria.php');
+                inputsData = await response_galeria.json();
+                updateInputs();
+                console.log("Dados carregados:", { sceneData, inputsData, userInputData });
+                // Nota: A primeira cena só toca áudio após interação do utilizador
+                // devido a políticas de privacidade dos browsers (Autoplay)
+                updateScene(0, true);
+            } catch (error) {
+                console.error("Erro ao carregar dados:", error);
+            }
+        }
+
+
+
+        function updateInputs() {
+            userInputData = []; // Limpa o array antes de preencher
+            // 1. Criamos uma cópia dos índices disponíveis [0, 1, 2, 3...]
+            let availableIndices = inputsData.map((_, index) => index);
+            // 2. Embaralhamos os índices (Fisher-Yates Shuffle)
+            for (let i = availableIndices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [availableIndices[i], availableIndices[j]] = [availableIndices[j], availableIndices[i]];
+            }
+
+
+
+            for (let i = 0; i < inputNum; i++) {
+                let inputSVG, inputPalavra, inputArtigo, inputID_SVG, inputID_Palavra;
+
+                if (randomScale == 0) {
+                    // Seleciona SVG e Palavra aleatória do mesmo par
+                    // Pega o último índice do array embaralhado (único)
+                    const randomIndex = availableIndices.pop();
+                    const inputData = inputsData[randomIndex];
+
+                    inputSVG = inputData.svg;
+                    inputPalavra = inputData.palavra;
+                    inputArtigo = inputData.artigo;
+                    inputID_SVG = inputData.id;
+                    inputID_Palavra = inputData.id;
+
+                } else if (randomScale == 1) {
+                    // Seleciona SVG aleatório e Palavra aleatória, garantindo que não são do mesmo par
+                    // Para randomScale 1, pegamos dois índices diferentes do array embaralhado
+                    const idxSVG = availableIndices.pop();
+                    // Se o array esvaziar, pegamos do início ou de uma cópia
+                    const idxPalavra = availableIndices.length > 0 ? availableIndices.pop() : (idxSVG + 1) % inputsData.length;
+
+                    const dataSVG = inputsData[idxSVG];
+                    const dataPalavra = inputsData[idxPalavra];
+
+                    inputSVG = dataSVG.svg;
+                    inputID_SVG = dataSVG.id;
+
+                    inputPalavra = dataPalavra.palavra;
+                    inputArtigo = dataPalavra.artigo;
+                    inputID_Palavra = dataPalavra.id;
+
+                }
+
+
+                userInputData[i] = {
+                    palavra: inputPalavra,
+                    artigo: inputArtigo,
+                    svg: inputSVG,
+                    ID_SVG: inputID_SVG,
+                    ID_Palavra: inputID_Palavra
+                };
+            }
+
+
+        }
+
+        function updateScene(index, shouldPlayAudio = true) {
+            if (sceneData.length === 0) return;
+            isTransitioning = true; // Bloqueia novos cliques
+            const scene = sceneData[index];
+            let textoParaExibirOriginal = scene.texto;
+            let textoParaExibir = scene.texto;
+            const input = userInputData[scene.inputIndex - 1];
+            const input2 = userInputData[3 - 1];
+            const input3 = userInputData[4 - 1];
+            // Verifica se a cena pede um input (1) e se temos inputs gerados
+            if (textoParaExibirOriginal.includes("1") && userInputData.length > 0) {
+
+
+
+
+
+                if (input) {
+                    const pecaSubstituta1 = scene.artigo
+                        ? (input.artigo || "") + ' <span class="inputPalavra">' + input.palavra + '</span>'
+                        : '<span class="inputPalavra">' + input.palavra + '</span>';
+
+                    const pecaSubstituta2 = scene.artigo
+                        ? (input2.artigo || "") + ' <span class="inputPalavra">' + input2.palavra + '</span>'
+                        : '<span class="inputPalavra">' + input2.palavra + '</span>';
+
+                    const pecaSubstituta3 = scene.artigo
+                        ? (input3.artigo || "") + ' <span class="inputPalavra">' + input3.palavra + '</span>'
+                        : '<span class="inputPalavra">' + input3.palavra + '</span>';
+
+                    textoParaExibir = textoParaExibir.replace("3", pecaSubstituta3);
+                    textoParaExibir = textoParaExibir.replace("2", pecaSubstituta2);
+
+                    textoParaExibir = textoParaExibir.replace("1", pecaSubstituta1);
+                }
+            }
+            // 1. Iniciar Fade Out (adiciona classe que mete opacity: 0)
+            layers.forEach(l => l.classList.add('layer-hidden'));
+            textoContorno.style.opacity = 0;
+            textoLegenda.style.opacity = 0;
+            document.getElementById('titulo').style.display = 'none';
+    
+    // Mostra as camadas e conteúdos
+    document.querySelectorAll('.svg-layer').forEach(layer => {
+        layer.style.display = "block";
+    });
+    document.querySelectorAll('.content').forEach(content => {
+        content.style.display = "block";
+    });
+            // 2. Esperar o tempo da transição (500ms) para mudar as fontes
+            setTimeout(() => {
+
+                
+                // Atualiza Textos
+                const layer1Container = document.getElementById('layer-1');
+                const layer2Container = document.getElementById('layer-2');
+                const layer3Container = document.getElementById('layer-3');
+
+                textoContorno.innerHTML = textoParaExibir;
+                textoLegenda.innerHTML = textoParaExibir;
+
+                // --- ATUALIZAÇÃO DAS IMAGENS ---
+
+                // Camada 1 (Fundo)
+                if (scene.layer_1){
+                    imgLayer1.src = scene.layer_1;
+                layer1Container.style.zIndex = scene.layer_1_zIndex;
+                layer1Container.setAttribute('data-speed', scene.layer_1_DataSpeed);
+
+                }  
+
+                // Camada 2 (Input Dinâmico)
+            
+                const hasValidInputIndex = scene.inputIndex !== undefined && scene.inputIndex !== null && scene.inputIndex > 0;
+
+                if (hasValidInputIndex) {
+                    const inputData = userInputData[scene.inputIndex - 1];
+                    if (inputData && inputData.svg) {
+                        const svgConteudo = inputData.svg.trim();
+
+                        // Se o conteúdo for código SVG, converte para Data URL
+                        if (svgConteudo.startsWith('<svg')) {
+                            imgLayer2.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svgConteudo);
+                        } else {
+                            imgLayer2.src = svgConteudo;
+                        }
+                        layer2Container.style.display = 'block';
+                        layer2Container.style.zIndex = scene.inputZIndex;
+                        layer2Container.setAttribute('right', "50%");
+                        layer2Container.setAttribute('transform', "translateX(50%)");
+                        layer2Container.setAttribute('data-speed', scene.inputDataSpeed);
+
+
+
+
+                    }
+                } else {
+                    // Caso não exista inputIndex, limpa e esconde o layer_2
+                    imgLayer2.src = "";
+                    layer2Container.style.display = 'none';
+                }
+
+                // Camada 3 (Frente)
+                if (scene.layer_3){
+                    imgLayer3.src = scene.layer_3;
+                layer3Container.style.zIndex = scene.layer_3_zIndex;
+                layer3Container.setAttribute('data-speed', scene.layer_3_DataSpeed);
+
+                } 
+
+                // Gestão de Áudio
+                if (scene.audio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                    if (shouldPlayAudio) {
+                        currentAudio.src = scene.audio;
+                        currentAudio.play().catch(e => console.log("Áudio bloqueado:", e));
+                    }
+                }
+
+                // Gestão de Áudio
+                if (scene.audioBG) {
+                    let currentSrc = currentBGAudio.src ? new URL(currentBGAudio.src).pathname : "";
+    let nextSrc = scene.audioBG;
+
+                   // Só altera se o src for realmente diferente
+    if (!currentBGAudio.src || !currentBGAudio.src.includes(nextSrc)) {
+        currentBGAudio.pause();
+        currentBGAudio.currentTime = 0;
+        
+        currentBGAudio.src = nextSrc;
+        currentBGAudio.loop = true;
+        currentBGAudio.volume = scene.audioBG_volume || 1; // Fallback para volume 1
+    }
+
+    // Garante que está tocando se deve tocar (mesmo que não tenha mudado o arquivo)
+    if (shouldPlayAudio && currentBGAudio.paused) {
+        currentBGAudio.play().catch(e => console.log("Áudio bloqueado pelo navegador:", e));
+    }
+                }
+
+                // 3. Iniciar Fade In
+                layers.forEach(l => {
+                    // Só remove o hidden se não for o layer-2 escondido
+                    if (l.id !== 'layer-2' || (l.id === 'layer-2' && hasValidInputIndex)) {
+                        l.classList.remove('layer-hidden');
+                    }
+                });
+
+                
+                textoContorno.style.opacity = 1;
+                textoLegenda.style.opacity = 1;
+                // Libertar para o próximo clique
+                setTimeout(() => { isTransitioning = false; }, 500);
+            }, 500);
+        }
+
+        window.addEventListener('click', (e) => {
+            if (!start || sceneData.length === 0 || isTransitioning) return;
+
+            const screenWidth = window.innerWidth;
+            const clickX = e.clientX;
+
+            if (clickX > screenWidth / 2) {
+                currentIndex = (currentIndex + 1) % sceneData.length;
+            } else {
+                currentIndex = (currentIndex - 1 + sceneData.length) % sceneData.length;
+            }
+
+            // Passamos 'true' para que o áudio toque na mudança por clique
+            updateScene(currentIndex, true);
+        });
+
+        // Mantém o parallax
+        window.addEventListener('mousemove', (e) => {
+            if (!start) return; // Só faz parallax se tiver começado
+            const normalizedX = (e.clientX / window.innerWidth) - 0.5;
+            layers.forEach(layer => {
+                const speed = parseFloat(layer.getAttribute('data-speed'));
+                const xOffset = normalizedX * speed * 0.5;
+                layer.style.transform = `translate(calc(-50% + ${xOffset}px), -50%)`;
+            });
+        });
+
+    
+        
+
+
+
+    </script>
+</body>
+
+</html>

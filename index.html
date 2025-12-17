@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lamb to the Slaughter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
+    <style>
+        :root {
+            --max-aspect-ratio: calc(1920 / 1080);
+            --min-aspect-ratio: calc(1080 / 1920);
+            --bg-color: #ffffe2;
+            --rd-color: #ad0e0e;
+            --bl-color: #15a1ed;
+            --bg50-color: #ffffe297;
+
+
+
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--rd-color);
+            font-family: 'EB Garamond', serif;
+        }
+
+        main {
+            width: 100%;
+            height: 100%;
+            position: relative;
+
+        }
+
+
+
+        .layer-hidden {
+            opacity: 0;
+        }
+
+        /* Interfaces */
+        #titulo,
+        #randomScaleContainer,
+        #step-1 {
+            position: absolute;
+            z-index: 100;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 80%;
+        }
+
+        #randomScaleContainer,
+        #step-1 {
+            display: none;
+        }
+
+        /* Campo de Texto com Placeholder */
+        .form_field {
+            display: inline-block;
+            min-width: 150px;
+            outline: none;
+            text-align: left;
+            padding: 0 5px;
+        }
+
+        .form_field:empty::before {
+            content: attr(data-placeholder);
+            color: var(--bg50-color);
+        }
+
+        /* Progressão Visual */
+        .circles-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .circle-past {
+            background-color: var(--bl-color);
+        }
+
+        .circle-future {
+            background-color: var(--bg-color);
+        }
+
+        /* Desenho */
+        canvas {
+            background: white;
+            border: 1px solid #ccc;
+            width: 100%;
+            max-width: 600px;
+            height: 350px;
+            cursor: crosshair;
+        }
+
+        /* Experiência */
+        .content {
+            position: absolute;
+            top: 100%;
+            transform: translateY(0);
+            height: auto;
+            width: 100%;
+            text-align: center;
+            z-index: 1000000;
+            pointer-events: none;
+            padding-top: 0;
+            padding-bottom: 0;
+
+        }
+
+        .legenda {
+            font-size: clamp(20px, 5vw, 36px);
+            color: var(--rd-color);
+            background: none;
+            /* Aumentei um pouco a opacidade do fundo */
+            display: inline-block;
+            padding: 10px 20px;
+            opacity: 0;
+            /* Começa invisível */
+            transition: opacity 0.8s ease;
+            /* Transição mais suave */
+            text-shadow:
+                -1px -1px 5px var(--bg-color),
+                1px -1px 5px var(--bg-color),
+                -1px 1px 5px var(--bg-color),
+                1px 1px 5px var(--bg-color),
+
+                -1px -1px 10px var(--bg-color),
+                1px -1px 10px var(--bg-color),
+                -1px 1px 10px var(--bg-color),
+                1px 1px 10px var(--bg-color),
+
+                -1px -1px 20px var(--bg-color),
+                1px -1px 20px var(--bg-color),
+                -1px 1px 20px var(--bg-color),
+                1px 1px 20px var(--bg-color),
+
+                0px 0px 30px var(--bg-color);
+            /* Sombra difusa para profundidade */
+        }
+
+        .inputPalavra {
+            font-weight: bold;
+            color: var(--bl-color);
+        }
+
+        /* O Contentor mantém a lógica de proporção que já tinhas */
+        /* 1. Ajuste no Container */
+
+
+        /* 2. Pseudo-elemento para o Fade Natural */
+
+
+        #parallax-container {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            height: 82vh;
+            max-width: calc(90vh * var(--max-aspect-ratio));
+            max-height: calc(82vw / var(--min-aspect-ratio));
+
+            background-color: var(--rd-color);
+            border-radius: 10px;
+            z-index: 10;
+            /* Removido o overflow:hidden daqui para a sombra não ser cortada */
+        }
+
+        #parallax-inner-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /* O corte acontece aqui dentro */
+            border-radius: 10px;
+        }
+
+        #parallax-container::after {
+            content: '';
+            position: absolute;
+            /* Estende a sombra 5px para fora para cobrir qualquer "linha" de pixel */
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+
+            border-radius: 15px;
+            /* Ligeiramente maior que o container */
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+
+            /* A "Armadura" contra linhas: 
+       1. Uma sombra externa da cor do fundo para selar a borda.
+       2. Duas sombras internas para o efeito de fade. */
+            box-shadow:
+                0 0 0 10px var(--bg-color),
+                inset 0 0 25px 25px var(--bg-color),
+                inset 0 0 50px 50px var(--bg-color);
+        }
+
+        #parallax-container.experiencia-ativa {
+            background-color: var(--bg-color);
+        }
+
+        #parallax-container.experiencia-ativa::after {
+            display: block;
+        }
+
+        .svg-layer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            height: 105%;
+            transform: translate(-50%, -50%);
+            display: none;
+            /* Começa escondido */
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+
+            /* Esta linha é crucial para a suavidade */
+            transition: opacity 0.8s ease-in-out, top 0.8s ease-in-out; /* Adicionado top aqui */            opacity: 0;
+        }
+
+        /* 3. Garante que as imagens não deixam espaços vazios */
+        .layer-image {
+            height: 101%;
+            /* Ligeiramente maior para garantir que entra na área do fade */
+            width: auto;
+            object-fit: cover;
+            display: block;
+        }
+
+        #scene-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-color);
+            z-index: 999999;
+            /* Acima de todos os elementos e legendas */
+            pointer-events: none;
+            /* Não bloqueia cliques quando invisível */
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out, background-color 0.6s ease;
+
+        }
+
+        /* Classe para ativar o fade */
+        #scene-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+            /* Bloqueia cliques durante a transição */
+        }
+
+
+
+        /* Se preferires usar os teus ícones personalizados (SVG), usa este formato: */
+        /* body.experiencia-ativa {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><text x="0" y="20" font-size="20">⬅️</text></svg>') 16 16, auto;
+} */
+
+        /* Cursor para avançar (Direita) */
+        /* Cursor para avançar (Seta Vermelha para a Direita) */
+        .cursor-avancar {
+            cursor: e-resize !important;
+        }
+
+        /* Cursor para recuar (Seta Cinza para a Esquerda) */
+        .cursor-recuar {
+            cursor: w-resize !important;
+        }
+
+        /* Cursor bloqueado (quando não pode recuar) */
+        .cursor-bloqueado {
+            cursor: not-allowed !important;
+        }
+
+
+
+        #randomScaleContainer {
+            display: none;
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            color: var(--bg-color);
+            text-align: center;
+            width: 60%;
+
+        }
+
+
+        /* Alvo: Imagens que vêm dos inputs do utilizador */
+        .user-drawing-img {
+            width: auto;
+            height: auto;
+            max-width: 30vh !important;
+            max-height: 30vh !important;
+            object-fit: contain;
+            /* Mantém o desenho centralizado */
+            display: block;
+        }
+
+        /* O artigo que antecede a palavra */
+        .artigo-estilo {
+            font-weight: normal;
+            color: inherit;
+            /* Mantém a cor do texto da legenda */
+            margin-right: 4px;
+        }
+
+        /* A palavra propriamente dita */
+        .inputPalavra {
+            font-weight: normal;
+            font-size: 0.9em;
+            color: var(--bl-color);
+            font-family: 'Gill Sans', 'Gill Sans MT', sans-serif;
+            /* Azul vibrante */
+        }
+        h1 {
+            font-size: clamp(40px, 12vw, 80px);
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+        }
+
+        h2 {
+            font-size: clamp(10px, 4vw, 24px);
+            margin: 0;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .gill {
+            font-family: 'Gill Sans', sans-serif;
+            color: var(--bl-color);
+        }
+
+        .gara {
+            font-family: 'Garamond', serif;
+            color: var(--rd-color);
+        }
+
+        .beigeText {
+            color: var(--bg-color);
+        }
+
+        .upperCaseText {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="scene-overlay"></div>
+    <main id="main">
+        <div id="parallax-container">
+            <div id="parallax-inner-wrapper">
+                <div class="svg-layer" id="layer-1" data-speed="20"><img src="" class="layer-image"></div>
+                <div class="svg-layer" id="layer-2" data-speed="50"><img src="" class="layer-image"></div>
+                <div class="svg-layer" id="layer-3" data-speed="80"><img src="" class="layer-image"></div>
+            </div>
+            <div id="titulo">
+                <h1 class="gara beigeText">Lamb to<br>the Slaughter</h1>
+                <h2 class="gill beigeText upperCaseText">The Interactive Story</h2>
+                                <button onclick="iniciarRandomScale()">START</button>
+                <button onclick="debugSkip()"
+                    style="display:block; margin-top: 20px; background: #333; color: white; font-size: 12px; opacity: 0.5;">DEBUG:
+                    SKIP TO EXP</button>
+            </div>
+
+            <div id="randomScaleContainer">
+                <label>RANDOMNESS SCALE</label><br>
+                <input type="range" id="rangeValue" min="0" max="50" step="10" value="0"
+                    oninput="updateRangeText(this.value)">
+                <div id="rangeOutputText"></div>
+                <button onclick="iniciarDesenhos()">NEXT</button>
+            </div>
+
+            <div class="steps" id="step-1">
+                <div id="drawing-progress" class="circles-container"></div>
+                <canvas id="canvas-1"></canvas>
+                <p style="color: var(--bg-color);">This is <span id="textInput1" class="form_field"
+                        data-placeholder="an object" contenteditable></span></p>
+                <button onclick="undoLast()">Undo</button>
+                <button onclick="clearCanvas()">Clean</button> |
+                <button onclick="prevStep()">BACK</button>
+                <button onclick="nextStep()">NEXT</button>
+            </div>
+
+            <div class="content">
+                <p id="contorno" class="legenda"></p>
+            </div>
+            <div class="content">
+                <p id="legenda" class="legenda"></p>
+            </div>
+
+        </div>
+
+
+    </main>
+
+    <script>
+        let estado = 0, currentDrawingStep = 1, totalDrawings = 6, drawingsData = [], randomScale = 0;
+        let sceneData = [], userInputData = [], currentIndex = 0, isTransitioning = false, project;
+        let currentAudio = new Audio(), currentBGAudio = new Audio();
+
+        function debugSkip() {
+            console.warn("Debug: A saltar desenhos...");
+
+            // 1. Definir uma escala de aleatoriedade padrão
+            randomScale = 20;
+
+            // 2. Criar dados fictícios para os 6 desenhos
+            const fakeNames = ["Dagger", "Leg of Lamb", "Whiskey Glass", "Police Badge", "Ice Cube", "Curtain"];
+
+            drawingsData = fakeNames.map((name, i) => {
+                let art = ['a', 'e', 'i', 'o', 'u'].includes(name[0].toLowerCase()) ? "an" : "a";
+                return {
+                    id: i + 1,
+                    // Um círculo SVG simples para não dar erro de renderização
+                    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" /></svg>`,
+                    palavra: name,
+                    artigo: art
+                };
+            });
+
+            // 3. Esconder o menu inicial
+            document.getElementById('titulo').style.display = 'none';
+
+            // 4. Chamar a função que finaliza a configuração (que já prepara o userInputData e inicia a experiência)
+            finalizarConfiguracao();
+        }
+
+
+
+
+
+
+
+        // NAVEGAÇÃO
+        function iniciarRandomScale() {
+            estado = 1;
+            document.getElementById('titulo').style.display = 'none';
+            document.getElementById('randomScaleContainer').style.display = 'block';
+            updateRangeText(0);
+        }
+
+        function updateRangeText(v) {
+            const d = { '0': 'Original', '10': 'Personalized', '20': 'Disorganized', '30': 'Crazy', '40': 'Chaotic', '50': 'Cosmic' };
+            document.getElementById('rangeOutputText').innerHTML = `<p><strong>${d[v]}</strong></p>`;
+        }
+
+        async function iniciarDesenhos() {
+            randomScale = parseInt(document.getElementById('rangeValue').value);
+            document.getElementById('randomScaleContainer').style.display = 'none';
+
+            // Se for 0, 40 ou 50, gera dados e avança logo
+            if (randomScale === 0 || randomScale === 40 || randomScale === 50) {
+                await gerarDadosAutomaticos(randomScale);
+                finalizarConfiguracao();
+            } else {
+                // Se for 10, 20 ou 30, abre o canvas para desenhar
+                mostrarPassoDesenho(1);
+            }
+        }
+
+        async function gerarDadosAutomaticos(scale) {
+            drawingsData = [];
+
+            if (scale === 0) {
+                // ORIGINAL: 6 objetos fixos (Podes mudar os nomes para os reais da história)
+                const nomesPadrao = ["Leg of Lamb", "Whiskey", "Dagger", "Police Badge", "Ice Cube", "Curtain"];
+                drawingsData = nomesPadrao.map((n, i) => ({
+                    id: i + 1,
+                    svg: `assets/original_${i + 1}.svg`, // Certifica-te que estes ficheiros existem
+                    palavra: n,
+                    artigo: ['a', 'e', 'i', 'o', 'u'].includes(n[0].toLowerCase()) ? "an" : "a"
+                }));
+            }
+            else if (scale === 40) {
+                // CHAOTIC: 6 objetos aleatórios da galeria global
+                try {
+                    const res = await fetch('get_random_gallery.php');
+                    const galeria = await res.json();
+
+                    // Baralhamos a galeria para ser sempre diferente
+                    shuffleArray(galeria);
+
+                    // MAPEAR: Pegamos nos primeiros 6 e damos-lhes IDs de 1 a 6
+                    drawingsData = galeria.slice(0, 6).map((item, i) => ({
+                        id: i + 1, // <--- O "id_b52..." torna-se 1, 2, 3...
+                        svg: item.svg,
+                        palavra: item.palavra,
+                        artigo: item.artigo || (['a', 'e', 'i', 'o', 'u'].includes(item.palavra[0].toLowerCase()) ? "an" : "a")
+                    }));
+
+                    console.log("Galeria mapeada para a história:", drawingsData);
+                } catch (e) {
+                    console.error("Erro na galeria:", e);
+                }
+            }
+            // Atualiza esta parte dentro da tua função gerarDadosAutomaticos(scale === 50)
+            else if (scale === 50) {
+    const vogais = "aeiou";
+    const consoantes = "bcdfghjklmnpqrstvwxyz";
+    const promises = []; 
+    
+    document.getElementById('rangeOutputText').innerHTML = "<p><strong>LOADING COSMIC DATA...</strong></p>";
+
+    for (let i = 0; i < 6; i++) {
+        // 1. Definir tamanho aleatório entre 3 e 8
+        const tamanho = Math.floor(Math.random() * (8 - 3 + 1)) + 3;
+        let randomWord = "";
+        
+        // 2. Decidir se começa com vogal ou consoante (50/50)
+        let proximoEhVogal = Math.random() < 0.5;
+
+        for (let j = 0; j < tamanho; j++) {
+            if (proximoEhVogal) {
+                randomWord += vogais.charAt(Math.floor(Math.random() * vogais.length));
+            } else {
+                randomWord += consoantes.charAt(Math.floor(Math.random() * consoantes.length));
+            }
+            proximoEhVogal = !proximoEhVogal;
+        }
+
+        // 3. NOVO: Calcular o artigo baseado na primeira letra da palavra gerada
+        const primeiraLetra = randomWord.charAt(0).toLowerCase();
+        const art = ['a', 'e', 'i', 'o', 'u'].includes(primeiraLetra) ? "an" : "a";
+
+        // 4. Imagem e Preload
+        const url = `https://picsum.photos/seed/${Math.random()}/800/800?grayscale`;
+        const imgPromise = new Promise((resolve) => {
+            const img = new Image();
+            img.src = url;
+            img.onload = () => resolve(url);
+            img.onerror = () => resolve(url);
+        });
+
+        promises.push(imgPromise);
+
+        drawingsData.push({
+            id: i + 1,
+            svg: url,
+            palavra: randomWord,
+            artigo: art // Agora o artigo é guardado (ex: "a" para "pafite", "an" para "oziba")
+        });
+    }
+
+    await Promise.all(promises);
+}
+        }
+
+        // Função de Baralhar (Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+
+
+        // DESENHO
+        function setupCanvas(id) {
+            const c = document.getElementById(id);
+            if (paper.project) paper.project.remove();
+            paper.setup(c);
+            project = paper.project;
+            let path;
+            const tool = new paper.Tool();
+            tool.onMouseDown = (e) => {
+                path = new paper.Path({ strokeColor: '#00c3ff', strokeWidth: 10, strokeCap: 'round', strokeJoin: 'round' });
+                path.add(e.point);
+            };
+            tool.onMouseDrag = (e) => { if (path) path.add(e.point); };
+            tool.onMouseUp = () => { if (path) path.simplify(2); };
+        }
+
+
+        function undoLast() { if (project.activeLayer.children.length) { project.activeLayer.lastChild.remove(); paper.view.draw(); } }
+        function clearCanvas() { project.activeLayer.removeChildren(); paper.view.draw(); }
+
+        function mostrarPassoDesenho(step) {
+            currentDrawingStep = step;
+            document.getElementById('step-1').style.display = 'block';
+            const prog = document.getElementById('drawing-progress');
+            prog.innerHTML = '';
+            for (let i = 1; i <= totalDrawings; i++) {
+                let div = document.createElement('div');
+                div.className = `circle ${i <= step ? 'circle-past' : 'circle-future'}`;
+                prog.appendChild(div);
+            }
+            setupCanvas('canvas-1');
+            if (drawingsData[step - 1]) {
+                document.getElementById('textInput1').innerText = drawingsData[step - 1].palavra;
+                project.importSVG(drawingsData[step - 1].svg);
+            } else { document.getElementById('textInput1').innerText = ""; }
+        }
+
+        function exportarDesenhoRecortado() {
+            const layer = project.activeLayer;
+
+            if (layer.children.length === 0) return null;
+
+            // 1. Guarda a posição original para restaurar depois
+            const originalPosition = layer.position.clone();
+
+            // 2. Obtém os limites (bounds) do conteúdo desenhado
+            const bounds = layer.strokeBounds; // strokeBounds inclui a espessura da linha
+
+            // 3. Move temporariamente o desenho para a origem (0,0) 
+            // para que o SVG não tenha espaços vazios no topo/esquerda
+            layer.pivot = bounds.topLeft;
+            layer.position = new paper.Point(0, 0);
+
+            // 4. Exporta apenas a layer. 
+            // O Paper.js usará os bounds da layer para definir o width/height do SVG.
+            const svgString = layer.exportSVG({ asString: true });
+
+            // 5. Restaura a posição original no canvas do utilizador
+            layer.position = originalPosition;
+
+            return svgString;
+        }
+
+
+        function nextStep() {
+            let w = document.getElementById('textInput1').innerText.trim();
+            if (!w) return alert("Name it!");
+            w = w.replace(/^(a\s|an\s|the\s)/i, "").trim();
+            let art = ['a', 'e', 'i', 'o', 'u'].includes(w[0].toLowerCase()) ? "an" : "a";
+            const croppedSVG = exportarDesenhoRecortado();
+
+            drawingsData[currentDrawingStep - 1] = {
+                id: currentDrawingStep,
+                svg: croppedSVG,
+                palavra: w,
+                artigo: art
+            };
+
+            if (currentDrawingStep < totalDrawings) mostrarPassoDesenho(currentDrawingStep + 1);
+            else finalizarConfiguracao();
+        }
+
+        function prevStep() {
+            if (currentDrawingStep > 1) mostrarPassoDesenho(currentDrawingStep - 1);
+            else { document.getElementById('step-1').style.display = 'none'; document.getElementById('randomScaleContainer').style.display = 'block'; }
+        }
+
+        function finalizarConfiguracao() {
+            document.getElementById('step-1').style.display = 'none';
+            estado = 2;
+
+            let finalData = [];
+
+            if (randomScale === 30) {
+                // ESCALA 30 (CRAZY): Imagem desvinculada do nome
+                // 1. Criamos cópias separadas de nomes e imagens
+                let nomes = drawingsData.map(d => ({ palavra: d.palavra, artigo: d.artigo }));
+                let imagens = drawingsData.map(d => d.svg);
+
+                // 2. Baralhamos as duas listas de forma independente
+                shuffleArray(nomes);
+                shuffleArray(imagens);
+
+                // 3. Verificação de segurança: Se por acaso o primeiro par coincidir, 
+                // fazemos um shift simples para garantir que a imagem não corresponde ao nome
+                finalData = imagens.map((img, i) => ({
+                    id: i + 1,
+                    svg: img,
+                    palavra: nomes[i].palavra,
+                    artigo: nomes[i].artigo
+                }));
+            }
+            else if (randomScale === 20) {
+                // ESCALA 20 (DISORGANIZED): Ordem aleatória, mas nome e imagem mantêm-se juntos
+                finalData = shuffleArray([...drawingsData]);
+            }
+            else {
+                // ESCALA 10, 0, 40, 50: Ordem linear (como inserido ou como veio do JSON/API)
+                finalData = [...drawingsData];
+            }
+
+            // Preparar para a experiência
+            userInputData = finalData.map(d => ({
+                palavra: d.palavra,
+                artigo: d.artigo,
+                svg: d.svg,
+                ID_SVG: d.id
+            }));
+
+            // Grava apenas se o utilizador tiver desenhado (10, 20, 30)
+            if (randomScale >= 10 && randomScale <= 30) {
+                fetch('gravarNaGaleria.php', {
+                    method: 'POST',
+                    body: JSON.stringify(drawingsData) // Grava os dados originais (corretos) para a galeria
+                });
+            }
+
+            iniciarExperiencia();
+        }
+
+
+        function iniciarExperiencia() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission();
+            }
+            const container = document.getElementById('parallax-container');
+            container.classList.add('experiencia-ativa');
+            document.body.classList.add('experiencia-ativa');
+
+
+
+
+            // MOSTRAR OS CONTENTORES DE LEGENDA
+            document.querySelectorAll('.content').forEach(c => c.style.display = 'block');
+
+
+            document.body.style.backgroundColor = "var(--bg-color)";
+            document.getElementById('main').style.backgroundColor = "var(--bg-color)";
+            loadData();
+        }
+
+        async function loadData() {
+            try {
+                const res = await fetch('get_data_legendas.php');
+                sceneData = await res.json();
+                updateScene(0);
+            } catch (e) { console.error(e); }
+        }
+
+        async function updateScene(index) {
+            if (isTransitioning || sceneData.length === 0) return;
+            isTransitioning = true;
+
+            const scene = sceneData[index];
+            const overlay = document.getElementById('scene-overlay');
+            const legendas = [document.getElementById('contorno'), document.getElementById('legenda')];
+
+            // 1. Esconder legendas e cobrir ecrã
+            legendas.forEach(leg => leg.style.opacity = '0');
+
+            // --- PASSO 1: FADE-OUT (Cobrir o ecrã) ---
+            overlay.classList.add('active');
+            // Esperamos o tempo da transição do CSS (0.6s)
+            setTimeout(() => {
+                const corCena = scene.background_color || '#ffffe2'; // Cor vinda do JSON
+                document.body.style.backgroundColor = corCena;
+                document.documentElement.style.setProperty('--bg-color', scene.shadow_color || '#ffffe2');
+                document.getElementById('main').style.backgroundColor = corCena;
+
+
+                overlay.classList.remove('active');
+
+                // NOVO: Mostrar as legendas apenas quando o overlay começa a sair
+                legendas.forEach(leg => {
+                    leg.style.opacity = '1';
+                });
+                // --- PASSO 2: TROCA DE CONTEÚDO (Tudo escondido pelo overlay) ---
+
+                // Texto
+                let txt = scene.texto;
+                console.log("==========================");
+                console.log("==========================");
+                console.log("==========================");
+
+                console.log("--- DEBUG CENA " + index + " ---");
+                console.log("Texto Original:", txt);
+                console.log("Regras de Artigos (JSON):", scene.artigos);
+                // 2. Criar uma lista de todos os placeholders possíveis na história (1 a 6)
+                const possiveisPlaceholders = ["1", "2", "3", "4", "5", "6"];
+
+                possiveisPlaceholders.forEach((p) => {
+    if (txt.includes(p)) {
+        const inputObj = userInputData.find(d => d.ID_SVG == p);
+        
+        if (inputObj) {
+            const placeholderIndex = parseInt(p) - 1;
+            const precisaArtigo = scene.artigos && scene.artigos[placeholderIndex] === true;
+            
+            let substantivo = inputObj.palavra;
+            let artigo = inputObj.artigo || "";
+            
+            let htmlGerado = "";
+
+            if (precisaArtigo && artigo) {
+                // Criamos um span para o artigo (normal) e outro para a palavra (bold+blue)
+                htmlGerado = `<span class="artigo-estilo">${artigo}</span><span class="inputPalavra">${substantivo}</span>`;
+            } else {
+                // Apenas a palavra
+                htmlGerado = `<span class="inputPalavra">${substantivo}</span>`;
+            }
+
+            const regex = new RegExp(p, 'g');
+            txt = txt.replace(regex, htmlGerado);
+        }
+    }
+}); 
+
+if (scene.AllTextBeige) {
+   
+legendas.forEach(leg => {
+                    leg.innerHTML = txt;
+                    leg.style.color = '#ffffe2';
+                });
+} else {
+    legendas.forEach(leg => {
+                    leg.innerHTML = txt;
+                    leg.style.color = 'var(--rd-color)';
+                });
+            }
+
+                console.log("Texto Final Renderizado:", txt);
+
+                legendas.forEach(leg => {
+                    leg.innerHTML = txt;
+                    leg.style.opacity = '1';
+                });
+
+                // Camadas
+                const layerContainers = [
+                    document.getElementById('layer-1'),
+                    document.getElementById('layer-2'),
+                    document.getElementById('layer-3')
+                ];
+
+                layerContainers.forEach(c => {
+                    c.style.display = 'none';
+                    c.style.opacity = '1'; // Sempre 1, quem controla a visão é o overlay
+                });
+
+                if (scene.layers) {
+                    scene.layers.forEach((layerData, i) => {
+                        if (i < 3) {
+                            const container = layerContainers[i];
+                            const img = container.querySelector('img');
+                            img.src = layerData.src;
+                            container.setAttribute('data-speed', layerData.dataSpeed);
+                            container.style.zIndex = layerData.zIndex;
+                            container.style.display = 'flex';
+                        }
+                    });
+                }
+
+                // Desenho do Utilizador
+                if (scene.inputs && scene.inputs.length > 0) {
+                    const inputInfo = scene.inputs[0];
+                    const userData = userInputData.find(d => d.ID_SVG == inputInfo.id);
+
+                    if (userData) {
+                        const container = document.getElementById('layer-2');
+
+                        const img = container.querySelector('img');
+
+                        img.className = 'user-drawing-img';
+
+                        // --- NOVA LÓGICA DE POSIÇÃO ---
+        // Se o JSON tiver 'top', aplica. Se não, volta ao centro (50%)
+        if (inputInfo.top) {
+            container.style.transform = inputInfo.top;
+        } else {
+            container.style.top = "50%"; 
+        }
+        // ------------------------------
+
+                        let svgRaw = userData.svg;
+
+                        // Lógica de Source (SVG vs URL)
+                        const imgSource = userData.svg;
+                        if (typeof svgRaw === 'string' && svgRaw.includes('<svg')) {
+                            // LIMPEZA: Remove as barras invertidas de escape que vêm do PHP
+                            const cleanSVG = svgRaw.replace(/\\"/g, '"').replace(/\\\//g, '/');
+
+                            const base64SVG = window.btoa(unescape(encodeURIComponent(cleanSVG)));
+                            img.src = 'data:image/svg+xml;base64,' + base64SVG;
+                        } else {
+                            img.src = svgRaw; // Fotos (Picsum)
+                        }
+
+                        container.style.display = 'flex';
+                        container.style.zIndex = inputInfo.zIndex || "50";
+                        container.setAttribute('data-speed', inputInfo.dataSpeed || "20");
+                    } else {
+                        document.getElementById('layer-2').style.display = 'none';
+                    }
+
+                }
+
+                // Áudio
+                gestaoAudio(scene);
+
+                // --- PASSO 3: FADE-IN (Revelar o ecrã) ---
+                // Pequena pausa para garantir que os SRCs das imagens carregaram
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                    legendas.forEach(leg => leg.style.opacity = '1');
+
+                    // A transição termina quando o overlay acaba de desaparecer
+                    setTimeout(() => {
+                        isTransitioning = false;
+                    }, 600);
+                }, 100);
+
+            }, 600);
+        }
+
+        // Função auxiliar para manter o updateScene limpo
+        function gestaoAudio(scene) {
+            if (!scene.audio) return;
+
+            if (scene.audio.effect && scene.audio.effect.trim() !== "") {
+                currentAudio.src = scene.audio.effect;
+                currentAudio.play().catch(e => { });
+            }
+
+            if (scene.audio.background) {
+                const bgSrc = scene.audio.background;
+                if (!currentBGAudio.src.includes(bgSrc)) {
+                    currentBGAudio.src = bgSrc;
+                    currentBGAudio.loop = true;
+                    currentBGAudio.volume = scene.audio.bgVolume || 0.5;
+                    currentBGAudio.play().catch(e => { });
+                } else {
+                    currentBGAudio.volume = scene.audio.bgVolume || 0.5;
+                }
+            }
+        }
+
+        window.addEventListener('click', (e) => {
+            // Só executa se estivermos na experiência (estado 2), não estivermos em transição e não for um botão
+            if (estado === 2 && !isTransitioning && e.target.tagName !== 'BUTTON') {
+
+                const larguraEcra = window.innerWidth;
+                const cliqueX = e.clientX;
+
+                if (cliqueX > larguraEcra / 2) {
+                    // CLIQUE À DIREITA: Avançar
+                    currentIndex = (currentIndex + 1) % sceneData.length;
+                    updateScene(currentIndex);
+                } else {
+                    // CLIQUE À ESQUERDA: Voltar
+                    if (currentIndex > 0) {
+                        currentIndex = currentIndex - 1;
+                        updateScene(currentIndex);
+                    } else {
+                        console.log("Início da história atingido. Não é possível recuar.");
+                        // Opcional: Adicionar um pequeno feedback visual ou sonoro aqui
+                    }
+                }
+            }
+        });
+
+        const valueDescriptions = {
+            '0': { text: "ORIGINAL", description: "The drawings and names used correspond to the original story. They are not created by the user." },
+            '10': { text: "PERSONALIZED", description: "The drawings and their respective names are presented in the same order that the user introduced them." },
+            '20': { text: "DISORGANIZED", description: "The drawings and their respective names are presented in a random order." },
+            '30': { text: "CRAZY", description: "The drawings and names are unlinked from each other and presented in a completely random manner." },
+            '40': { text: "CHAOTIC", description: "The program presents names and superimposes random images that were saved from other sessions with other users." },
+            '50': { text: "COSMIC NONSENSE", description: "The program presents words generated by a random combination of characters and superimposes random images from the web." },
+        };
+
+        const layers = document.querySelectorAll('.svg-layer');
+        const imgLayer1 = document.querySelector('#layer-1 img');
+        const imgLayer2 = document.querySelector('#layer-2 img');
+        const imgLayer3 = document.querySelector('#layer-3 img');
+        const textoContorno = document.getElementById('contorno');
+        const textoLegenda = document.getElementById('legenda');
+
+        function iniciarRandomScale() {
+            estado = 1;
+            document.getElementsByTagName('main')[0].style.backgroundColor = "var(--rd-color)";
+            document.getElementById('titulo').style.display = 'none';
+            document.getElementById('randomScaleContainer').style.display = 'block';
+
+        }
+
+
+
+        function updateRangeText(value) {
+            const outputElement = document.getElementById('rangeOutputText');
+            const data = valueDescriptions[value];
+            if (data) {
+                outputElement.innerHTML = `<p><strong>${data.text}</strong></p><p>${data.description}</p>`;
+            }
+            // Atualiza o valor no Passo 2
+            const displayElement = document.getElementById('rangeValueDisplay');
+            if (displayElement) {
+                displayElement.innerText = value;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            updateRangeText(document.getElementById('rangeValue').value);
+        });
+
+
+        function iniciarExperiencia() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission();
+            }
+
+
+            const container = document.getElementById('parallax-container');
+            container.classList.add('experiencia-ativa');
+
+            // OBRIGATÓRIO para o cursor funcionar no ecrã todo
+            document.body.classList.add('experiencia-ativa');
+
+            document.body.style.backgroundColor = "#ffffe2";
+            document.getElementById('main').style.backgroundColor = "#ffffe2";
+            loadData();
+        }
+
+        // Listener de movimento para atualizar as classes do cursor
+        window.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) - 0.5;
+
+            // 1. Mantém o teu efeito Parallax nas camadas
+            document.querySelectorAll('.svg-layer').forEach(l => {
+                const s = l.getAttribute('data-speed');
+                l.style.transform = `translate(calc(-50% + ${x * s}px), -50%)`;
+            });
+
+            // 2. Lógica de troca de classes de cursor
+            if (estado === 2) {
+                const larguraEcra = window.innerWidth;
+
+                if (e.clientX > larguraEcra / 2) {
+                    // LADO DIREITO
+                    document.body.classList.replace('cursor-recuar', 'cursor-avancar') || document.body.classList.add('cursor-avancar');
+                    document.body.classList.remove('cursor-bloqueado');
+                } else {
+                    // LADO ESQUERDO
+                    document.body.classList.remove('cursor-avancar');
+                    if (currentIndex > 0) {
+                        document.body.classList.add('cursor-recuar');
+                        document.body.classList.remove('cursor-bloqueado');
+                    } else {
+                        document.body.classList.remove('cursor-recuar');
+                        document.body.classList.add('cursor-bloqueado');
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

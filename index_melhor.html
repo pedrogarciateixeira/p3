@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lamb to the Slaughter - The Interactive Story</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
+    <style>
+        :root {
+            --max-aspect-ratio: calc(1920 / 1080);
+            --min-aspect-ratio: calc(1080 / 1920);
+        }
+
+        body,
+        html,
+        main {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            /* Remover 'overflow: hidden' de body para o efeito de centralização da janela */
+            overflow: hidden;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffe2;
+        }
+
+        .container {
+            position: relative;
+            width: 90vw;
+            height: 90vh;
+            /* Lógica de Aspect Ratio Mantida */
+            max-width: min(90vw, calc(90vh * var(--max-aspect-ratio)));
+            max-height: min(90vh, calc(90vw / var(--min-aspect-ratio)));
+
+            /* CRUCIAL: Mantido para conter os SVGs */
+            overflow: hidden;
+
+            /* Estilos visuais */
+            background-color: darkred;
+            color: black;
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: center;
+            font-family: sans-serif;
+            border-radius: 10px;
+            /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); */
+            border: 0px solid #ffffe2;
+
+        }
+
+        /* Pseudo-elemento para o efeito de 'glow'/sombra interna */
+        .container::after {
+            display: none;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            background-color: transparent;
+
+            /* Aplica o 'inset box-shadow' no pseudo-elemento que está POR CIMA de tudo. */
+            box-shadow:
+                inset 0 0 50px 50px #ffffe2;
+
+            border-radius: 0px;
+            pointer-events: none;
+
+            /* Z-Index ELEVADO para ficar acima de todo o conteúdo */
+            z-index: 20;
+        }
+
+        /* Modifica o seletor original para responder à classe */
+        .container.experiencia-ativa::after {
+            display: block;
+            /* Agora só aparece quando a experiência começa */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: transparent;
+
+            /* Aplica o 'inset box-shadow' no pseudo-elemento que está POR CIMA de tudo. */
+            box-shadow:
+                inset 0 0 50px 50px #ffffe2, inset 0 0 25px 25px #ffffe2;
+
+            border-radius: 0px;
+            pointer-events: none;
+
+            /* Z-Index ELEVADO para ficar acima de todo o conteúdo */
+            z-index: 20;
+        }
+
+        /* Adiciona uma transição suave para a mudança de cor */
+        body,
+        html,
+        main,
+        .container {
+            transition: background-color 1s ease-in-out;
+        }
+
+        /* ---------------------------------------------------- */
+        /* Estilos para os SVGs (Camadas) - AGORA COM TRANSIÇÃO */
+        /* ---------------------------------------------------- */
+        .svg-layer {
+            /* Definido para ter o mesmo tamanho do container pai */
+            width: 100%;
+            height: 100%;
+            position: absolute;
+
+            /* Centralização Garantida, AGORA A BASE DO MOVIMENTO */
+            top: 50%;
+            left: 50%;
+            /* Importante: Transformação inicial, será alterada pelo JS */
+            transform: translate(-50%, -50%);
+
+            pointer-events: none;
+            display: none;
+            opacity: 1;
+            /* Adiciona uma transição suave para o movimento */
+            transition: transform 0.2s ease-out, opacity 0.5s ease-in-out;
+            /* Adicionado opacity */
+
+        }
+
+        .layer-hidden {
+            opacity: 0;
+        }
+
+        /* Ordem Z (apenas para organização) */
+        #layer-1 {
+            z-index: 1;
+        }
+
+        /* Mais Longe, se move MENOS */
+
+
+        /* Meio, se move MÉDIO */
+        #layer-3 {
+            z-index: 3;
+        }
+
+        /* Mais Perto, se move MAIS */
+
+
+        /* O elemento SVG deve preencher toda a sua camada */
+        .layer-image {
+            width: auto;
+            height: 100%;
+            position: absolute;
+            right: 50%;
+            /* Centraliza o SVG na camada. Mantenha 'transform: translateX(50%)' APENAS AQUI para centralização inicial do SVG DENTRO da camada */
+            transform: translateX(50%);
+            isolation: isolate;
+        }
+
+        #layer-2 {
+            z-index: 10;
+            width: auto;
+            height: 30%;
+            display: none;
+        }
+
+
+
+        .content {
+            /* Ajustado para simplesmente flutuar sobre o container */
+            position: absolute;
+
+            /* Herda as limitações do container para ter a mesma área visual */
+            width: 90vw;
+            height: 90vh;
+            max-width: min(90vw, calc(90vh * var(--max-aspect-ratio)));
+            max-height: min(90vh, calc(90vw / var(--min-aspect-ratio)));
+
+            display: none;
+            color: darkred;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+
+            border-radius: 10px;
+            /* Remova width: fit-content e height: fit-content para manter a área de conteúdo consistente */
+
+            z-index: 100;
+
+        }
+
+        .content .legenda {
+            font-size: clamp(28px, 2vw, 36px);
+            position: relative;
+            /* Centraliza a legenda na vertical */
+            margin-top: calc(45vh - 20px);
+        }
+
+        #contorno {
+            /* O contorno deve ter o mesmo valor de color de fundo do container/body (#ffffe2/darkred) */
+            -webkit-text-stroke: 2px #ffffe2;
+            color: darkred;
+            /* Cor de preenchimento do texto */
+        }
+
+        #legenda {
+            color: darkred;
+            /* Cor normal do texto */
+        }
+
+        .inputPalavra {
+            color: rgb(0, 102, 255);
+        }
+
+        h1 {
+            font-size: clamp(40px, 12vw, 80px);
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+        }
+
+        h2 {
+            font-size: clamp(10px, 4vw, 24px);
+            margin: 0;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        #titulo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            z-index: 15;
+            color: darkred;
+            text-align: center;
+            width: 80%;
+        }
+
+        .gill {
+            font-family: 'Gill Sans', sans-serif;
+            color: rgb(9, 136, 220);
+        }
+
+        .gara {
+            font-family: 'Garamond', serif;
+            color: darkred;
+        }
+
+        input[type="range"] {
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            /* Override default CSS styles */
+            appearance: none;
+            width: 100%;
+            /* Full-width */
+            height: 5px;
+            /* Specified height */
+            background: #ffffe2;
+            /* Grey background */
+            outline: none;
+            /* Remove outline */
+            opacity: 0.8;
+            /* Set transparency (for mouse-over effects on hover) */
+            -webkit-transition: .2s;
+            /* 0.2 seconds transition on hover */
+            transition: opacity .2s;
+        }
+
+        input[type="range"]:hover {
+            opacity: 1;
+            /* Fully shown on mouse-over */
+        }
+
+
+
+        /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 23px;
+            height: 24px;
+            border: 0;
+            background: #00c3ff;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 23px;
+            height: 25px;
+            border: 0;
+            background: #00c3ff;
+            cursor: pointer;
+        }
+
+        #randomScaleContainer {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            z-index: 15;
+            color: #ffffe2;
+            text-align: center;
+            width: 80%;
+
+        }
+
+        .step {
+            display: none;
+            /* Escondido por padrão */
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            z-index: 30;
+            background: #ffffe2;
+            padding: 20px;
+            border: 2px solid darkred;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            align-content: end;
+        
+        }
+
+        .drawing-canvas {
+            width: 99%;
+            height: 95%;
+            border: 1px solid #000;
+            background: #ffffe2;
+            cursor: crosshair;
+            /* touch-action: none; */
+        }
+
+        .form_field {
+            min-width: 100px;
+            display: inline-block;
+            outline: none;
+        }
+
+        /* Garante que o container de desenho não bloqueia cliques depois de fechado */
+        #step-1:not([style*="display: block"]) {
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .content {
+            pointer-events: none;
+            /* Permite que o clique passe para o window listener */
+        }
+
+        .beigeText {
+            color: #ffffe2;
+        }
+
+        .upperCaseText {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+/* 1. Faz o campo comportar-se como um input e alinha à esquerda */
+.form_field {
+    display: inline-block;
+    text-align: left;
+    outline: none;
+    vertical-align: bottom;
+    cursor: text;
+}
+
+/* 2. Lógica para mostrar o placeholder quando estiver vazio */
+.form_field:empty::before {
+    content: attr(data-placeholder);
+    color: rgba(139, 0, 0, 0.5); /* Darkred com transparência */
+    font-style: italic;
+    cursor: text;
+}
+
+/* 3. Garante que o parágrafo pai também ajuda no alinhamento */
+.input-message {
+    text-align: left; /* Força o alinhamento à esquerda de toda a frase */
+    display: block;
+    width: 100%;
+}
+
+.canvas-controls {
+    position: absolute;
+    top: 50%;
+    transform: translateX(-50%), translateY(-50%);
+    width: 100%;
+    align-items: center;
+    z-index: 10000;
+    background-color: bisque;
+}
+
+.canvas-controls > * {
+    background-color: #00c3ff;
+}
+
+.circles-container {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 15px;
+    margin-bottom: 15px;
+
+}
+
+.circle {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.circle-past {
+    background-color: #00c3ff; /* Azul (Já desenhados) */
+}
+
+.circle-future {
+    background-color: darkred; /* Vermelho (Por desenhar) */
+}
+
+    </style>
+</head>
+
+<body>
+    <main id="main">
+
+
+        <div class="container" id="parallax-container">
+
+
+            <div class="svg-layer" id="layer-1" data-speed="20">
+                <img src=" " alt="Camada 1 do Fundo" class="layer-image">
+            </div>
+
+            <div class="svg-layer" id="layer-2" data-speed="50">
+                <img src=" " alt="Camada 2 do Meio" class="layer-image">
+            </div>
+
+            <div class="svg-layer" id="layer-3" data-speed="80">
+                <img src=" " alt="Camada 3 da Frente" class="layer-image">
+            </div>
+
+            <div id="titulo">
+                <h1 class="gara beigeText">Lamb to<br>the Slaughter</h1>
+                <h2 class="gill beigeText upperCaseText">The Interactive Story</h2>
+                <!-- <button onclick="iniciarExperiencia();">Start</button> -->
+                <button onclick="iniciarRandomScale();">START</button>
+            </div>
+
+            <div id="randomScaleContainer">
+                <label for="rangeValue">RANDOMNESS SCALE</label>
+                <input type="range" id="rangeValue" name="rangeValue" min="0" max="50" step="10" value="0"
+                    oninput="updateRangeText(this.value)">
+                <div id="rangeOutputText"></div>
+                <button onclick="iniciarDesenhos();">NEXT</button>
+
+            </div>
+
+            <div class="step" id="step-1">
+                <div id="drawing-progress" class="circles-container"></div>                        <canvas id="canvas-1" class="drawing-canvas"></canvas>
+                        <div class="canvas-controls">
+                                <p class="input-message" style="color: darkred; font-family: 'EB Garamond', serif;">
+                                    This is <span id="textInput1" class="form_field" data-placeholder="an object"
+                                        tabindex="1" contenteditable></span>
+                                </p>
+                                <div class="button-group">
+                                    <button type="button" class="btn-clear" onclick="undoLast()">undo</button>
+                                    <button type="button" class="btn-action" onclick="clearCanvas()">clean</button>
+            
+                                    <button type="button" class="btn-back" onclick="prevStep()">BACK</button>
+                                    <button type="button" class="btn-next" onclick="nextStep(2)">NEXT</button>
+                                </div>
+                        
+                           
+                        </div>
+                    
+            </div>
+
+
+        </div>
+
+        <div class="content">
+            <div>
+                <p id="contorno" class="legenda"> </p>
+
+            </div>
+
+        </div>
+
+        <div class="content">
+            <div>
+                <p id="legenda" class="legenda"> </p>
+
+            </div>
+        </div>
+
+    </main>
+
+
+    <script>
+
+        let estado = 0;
+        let currentStep = 1;
+       
+        // Variáveis de estado
+        let sceneData = [];
+        let inputsData = [];
+        let userInputData = [];
+     
+
+        let currentIndex = 0;
+        let currentAudio = new Audio(); // Objeto de áudio global
+        let currentBGAudio = new Audio(); // Objeto de áudio BG global
+
+        let isTransitioning = false; // Bloqueia cliques múltiplos durante a animação
+
+        let randomScale = 0;
+
+        const inputNum = 6; // Número de inputs a considerar
+
+        // --- Configuração do Slider (Mantido) ---
+        const valueDescriptions = {
+            '0': { text: "ORIGINAL", description: "The drawings and names used correspond to the original story. They are not created by the user." },
+            '10': { text: "PERSONALIZED", description: "The drawings and their respective names are presented in the same order that the user introduced them." },
+            '20': { text: "DISORGANIZED", description: "The drawings and their respective names are presented in a random order." },
+            '30': { text: "CRAZY", description: "The drawings and names are unlinked from each other and presented in a completely random manner." },
+            '40': { text: "CHAOTIC", description: "The program presents names and superimposes random images that were saved from other sessions with other users." },
+            '50': { text: "COSMIC NONSENSE", description: "The program presents words generated by a random combination of characters and superimposes random images from the web." },
+        };
+
+        const layers = document.querySelectorAll('.svg-layer');
+        const imgLayer1 = document.querySelector('#layer-1 img');
+        const imgLayer2 = document.querySelector('#layer-2 img');
+        const imgLayer3 = document.querySelector('#layer-3 img');
+        const textoContorno = document.getElementById('contorno');
+        const textoLegenda = document.getElementById('legenda');
+
+        function iniciarRandomScale() {
+            estado = 1;
+            document.getElementsByTagName('main')[0].style.backgroundColor = "darkred";
+            document.getElementById('titulo').style.display = 'none';
+            document.getElementById('randomScaleContainer').style.display = 'block';
+
+        }
+
+
+
+        function updateRangeText(value) {
+            const outputElement = document.getElementById('rangeOutputText');
+            const data = valueDescriptions[value];
+            if (data) {
+                outputElement.innerHTML = `<p><strong>${data.text}</strong></p><p>${data.description}</p>`;
+            }
+            // Atualiza o valor no Passo 2
+            const displayElement = document.getElementById('rangeValueDisplay');
+            if (displayElement) {
+                displayElement.innerText = value;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            updateRangeText(document.getElementById('rangeValue').value);
+        });
+
+
+        let currentDrawingStep = 1;
+        const totalDrawings = 6;
+        let drawingsData = [];
+
+        // Inicializa o Paper.js no canvas atual
+        // Variável global para o Paper.js conseguir referenciar o projeto
+        let project;
+
+        function setupCanvas(canvasId) {
+            document.getElementsByTagName('main')[0].style.backgroundColor = "blue";
+
+            const canvas = document.getElementById(canvasId);
+            // Limpa o projeto anterior se existir para evitar acumulação de memória
+            if (paper.project) paper.project.remove();
+
+            paper.setup(canvas);
+            project = paper.project;
+            let path;
+            let drawing = false; // Adicionamos a flag 'drawing'
+
+            const tool = new paper.Tool();
+
+            tool.onMouseDown = (event) => {
+                drawing = true; // Define que está a desenhar
+                path = new paper.Path();
+                path.strokeColor = '#00c3ff'; //AQUI
+                path.strokeWidth = 10;
+                path.strokeCap = 'round'; // Torna o traço mais suave
+                path.strokeJoin = 'round'; // Adicionado para melhor aparência
+                path.add(event.point);
+            };
+
+            tool.onMouseDrag = (event) => {
+                if (drawing && path) { // Verifica se está ativamente a desenhar
+                    path.add(event.point);
+                }
+            };
+            
+            // --- Lógica Adicionada (Adaptada de initializePaper) ---
+            tool.onMouseUp = () => {
+                drawing = false;
+                if (path) {
+                    // Otimiza o caminho (simplifica)
+                    path.simplify(2); 
+                    
+                    // Salva o SVG após a otimização
+                    // É necessário que 'saveCurrentCanvasSVG' esteja acessível globalmente
+                    // E que consiga exportar o SVG do projeto Paper.js atual.
+                    // Já que estamos dentro do setupCanvas, vamos usar a função da forma mais segura:
+                   
+                }
+            };
+        }
+
+        // Função para Desfazer
+        function undoLast() {
+            const segments = project.activeLayer.children;
+            if (segments.length > 0) {
+                // Remove o último item (caminho) adicionado à camada ativa
+                segments[segments.length - 1].remove();
+                paper.view.draw(); // Atualiza o canvas visualmente
+            }
+        }
+
+        // Função para Limpar Tudo
+        function clearCanvas() {
+            project.activeLayer.removeChildren();
+            paper.view.draw();
+        }
+
+        function iniciarDesenhos() {
+            document.getElementById('randomScaleContainer').style.display = 'none';
+            randomScale = parseInt(document.getElementById('rangeValue').value);
+            mostrarPassoDesenho(1);
+        }
+
+        // VARIÁVEL DE DADOS GLOBAL JÁ EXISTE: let drawingsData = [];
+
+        function mostrarPassoDesenho(step) {
+            // Esconde o passo anterior se houver
+            if (document.getElementById(`step-${currentDrawingStep}`)) {
+                document.getElementById(`step-${currentDrawingStep}`).style.display = 'none';
+            }
+
+            currentDrawingStep = step;
+            const container = document.getElementById('step-1');
+            container.style.display = 'block';
+
+            // Atualiza o texto do passo
+            const progressContainer = document.getElementById('drawing-progress');
+    progressContainer.innerHTML = ''; // Limpa os círculos atuais
+
+    for (let i = 1; i <= totalDrawings; i++) {
+        const circle = document.createElement('div');
+        circle.classList.add('circle');
+
+        if (i <= step) {
+            // Desenhos já concluídos ou o atual ficam Azuis
+            circle.classList.add('circle-past');
+        } else {
+            // Desenhos futuros ficam Vermelhos
+            circle.classList.add('circle-future');
+        }
+        
+        progressContainer.appendChild(circle);
+    }
+                const inputField = document.getElementById('textInput1');
+
+            // 1. Configura o Canvas (sempre necessário para inicializar o Paper.js)
+            setupCanvas('canvas-1');
+
+            // 2. Tenta carregar dados existentes
+            const existingData = drawingsData[step - 1]; // Index é step - 1
+
+            if (existingData) {
+                // Carrega a palavra
+                inputField.innerText = existingData.palavra;
+
+                // Carrega o SVG no canvas se existir
+                if (existingData.svg) {
+                    paper.project.importSVG(existingData.svg, { expandShapes: true });
+                }
+
+            } else {
+                // Se não houver dados, limpa
+                inputField.innerText = "";
+                clearCanvas(); // Limpa o canvas (já faz parte do setupCanvas, mas garante)
+            }
+
+            paper.view.draw(); // Força a atualização do desenho
+        }
+
+
+        function nextStep() {
+    const canvas = document.getElementById('canvas-1');
+    
+    // Usamos 'let' porque vamos modificar o valor da palavra
+    let word = document.getElementById('textInput1').innerText.trim(); 
+
+    if (word === "") {
+        alert("Please name your drawing!");
+        return;
+    }
+
+    // --- LÓGICA DE REMOÇÃO DE ARTIGO EXISTENTE ---
+    // Expressão regular: ^(a\s|an\s|the\s) 
+    // ^ = Início da string
+    // (a\s|an\s|the\s) = Captura "a ", "an ", ou "the " (com espaço)
+    // i = Torna a pesquisa case-insensitive (A, AN, The, etc.)
+    const articlesToRemove = /^(a\s|an\s|the\s)/i;
+    
+    // Remove o artigo do início da palavra e garante que o resultado final é aparado
+    word = word.replace(articlesToRemove, '').trim();
+
+    if (word === "") {
+        // Alerta caso o utilizador tenha introduzido apenas o artigo (ex: "the")
+        alert("Please enter a valid name for your drawing after removing the article!");
+        return;
+    }
+
+    // --- LÓGICA DO ARTIGO (RE-APLICADA ao texto limpo) ---
+    let artigoAjustado = "a"; // Padrão é "a"
+    
+    // A lógica de vogal/consoante continua a usar a palavra limpa
+    if (word.length > 0) {
+        const firstChar = word.toLowerCase().charAt(0);
+        const vogais = ['a', 'e', 'i', 'o', 'u'];
+        
+        if (vogais.includes(firstChar)) {
+            artigoAjustado = "an";
+        }
+    }
+    // -----------------------
+
+    // 1. Captura o SVG atual (incluindo o que pode ter sido carregado)
+    const currentSVG = paper.project.exportSVG({ asString: true });
+
+    // 2. Prepara os dados do passo atual
+    const newDrawingData = {
+        id: currentDrawingStep,
+        svg: currentSVG,
+        palavra: word, // Palavra limpa, sem artigo
+        artigo: artigoAjustado // Artigo correto ("a" ou "an")
+    };
+
+    // 3. Atualiza ou Adiciona o item no array drawingsData
+    // Se estiver a avançar, substitui o elemento no índice atual (currentDrawingStep - 1)
+    if (currentDrawingStep <= drawingsData.length) {
+        drawingsData[currentDrawingStep - 1] = newDrawingData;
+    } else {
+        // Isto só deve acontecer no primeiro avanço (Step 1 -> Step 2)
+        drawingsData.push(newDrawingData);
+    }
+
+
+    if (currentDrawingStep < totalDrawings) {
+        mostrarPassoDesenho(currentDrawingStep + 1);
+    } else {
+        finalizarConfiguracao();
+    }
+}
+
+
+        function prevStep() {
+            // Se estiver no primeiro passo (Desenho 1), volta para a seleção de escala
+            if (currentDrawingStep === 1) {
+                // Antes de sair, guarda o estado do Desenho 1 caso o utilizador volte
+                nextStep(); // Chama nextStep() para guardar o desenho atual no drawingsData[0]
+
+                document.getElementById('step-1').style.display = 'none';
+                document.getElementById('randomScaleContainer').style.display = 'block';
+                return;
+            }
+
+            // Volta para o passo anterior
+            mostrarPassoDesenho(currentDrawingStep - 1);
+        }
+
+
+
+        function finalizarConfiguracao() {
+    document.getElementById('step-1').style.display = 'none';
+
+    // IMPORTANTE: Definir o estado ANTES de carregar a experiência
+    estado = 2;
+
+    // --- 1. Preparar dados para o JSON e para o userInputData (local) ---
+    const currentTime = new Date();
+    
+    // Formata a data no formato "12/12/2025 20:55:38"
+    const formattedDate = `${currentTime.getDate().toString().padStart(2, '0')}/${(currentTime.getMonth() + 1).toString().padStart(2, '0')}/${currentTime.getFullYear()} ${currentTime.getHours().toString().padStart(2, '0')}:${currentTime.getMinutes().toString().padStart(2, '0')}:${currentTime.getSeconds().toString().padStart(2, '0')}`;
+    
+    // Mapeia os dados dos desenhos, adicionando ID e Data
+    const dataToSend = drawingsData.map(d => ({
+        id: `id_${Math.random().toString(16).slice(2)}`, // Gera um ID único simples
+        svg: d.svg,
+        artigo: d.artigo,
+        palavra: d.palavra,
+        data: formattedDate
+    }));
+
+
+    // --- 2. Enviar dados para o PHP ---
+    fetch('gravarNaGaleria.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend) // Envia o array de desenhos
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Lança um erro se a resposta do servidor for 4xx ou 5xx
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // console.log("Dados da galeria salvos com sucesso:", data);
+    })
+    .catch(error => {
+        console.error("Erro ao salvar dados da galeria:", error);
+        alert("There was an issue saving your drawings to the server.");
+    });
+
+
+    // --- 3. Preparar dados para a experiência (uso local) ---
+    // Usamos os dados que acabámos de criar para o JSON
+    userInputData = dataToSend.map(d => ({
+        palavra: d.palavra,
+        artigo: d.artigo,
+        svg: d.svg,
+        ID_SVG: d.id,
+        ID_Palavra: d.id
+    }));
+
+    // Inicia a cena 0
+    iniciarExperiencia();
+}
+
+        function iniciarExperiencia() {
+            // Permissão para giroscópio (iOS)
+            if (typeof DeviceOrientationEvent !== 'undefined' &&
+                typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response == 'granted') console.log("Giroscópio concedido");
+                    })
+                    .catch(console.error);
+            }
+
+            estado = 2;
+
+            // --- MUDANÇAS VISUAIS DE AMBIENTE ---
+            // Altera o fundo para darkred
+            document.body.style.backgroundColor = "#ffffe2";
+            document.documentElement.style.backgroundColor = "#ffffe2"; // html
+            document.getElementById('main').style.backgroundColor = "#ffffe2";
+
+            // Altera o fundo do container também para não haver falhas
+            const container = document.getElementById('parallax-container');
+            container.style.backgroundColor = "#ffffe2";
+            container.style.border = "0px solid #ffffe2";
+
+            // Ativa o pseudo-elemento ::after (glow)
+            // Como não podemos manipular ::after diretamente via JS, adicionamos uma classe
+            container.classList.add('experiencia-ativa');
+
+            loadData();
+        }
+
+        async function loadData() {
+            try {
+                const response_legendas = await fetch('get_data_legendas.php');
+                sceneData = await response_legendas.json();
+
+                // Se a escala for 0 (Original), carregamos do servidor. 
+                // Se for > 0, usamos os desenhos que o user acabou de fazer.
+                if (randomScale === 0) {
+                    const response_galeria = await fetch('get_data_galeria.php');
+                    inputsData = await response_galeria.json();
+                    updateInputs();
+                } else {
+                    // Se já temos drawingsData, não precisamos de updateInputs
+                    // Os dados já foram mapeados no finalizarConfiguracao
+                }
+
+                updateScene(0, true);
+            } catch (error) {
+                console.error("Erro ao carregar dados:", error);
+            }
+        }
+
+        function updateInputs() {
+            userInputData = []; // Limpa o array antes de preencher
+            // 1. Criamos uma cópia dos índices disponíveis [0, 1, 2, 3...]
+            let availableIndices = inputsData.map((_, index) => index);
+            // 2. Embaralhamos os índices (Fisher-Yates Shuffle)
+            for (let i = availableIndices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [availableIndices[i], availableIndices[j]] = [availableIndices[j], availableIndices[i]];
+            }
+
+
+
+            for (let i = 0; i < inputNum; i++) {
+                let inputSVG, inputPalavra, inputArtigo, inputID_SVG, inputID_Palavra;
+
+                if (randomScale == 0) {
+                    // Seleciona SVG e Palavra aleatória do mesmo par
+                    // Pega o último índice do array embaralhado (único)
+                    const randomIndex = availableIndices.pop();
+                    const inputData = inputsData[randomIndex];
+
+                    inputSVG = inputData.svg;
+                    inputPalavra = inputData.palavra;
+                    inputArtigo = inputData.artigo;
+                    inputID_SVG = inputData.id;
+                    inputID_Palavra = inputData.id;
+
+                } else if (randomScale == 1) {
+                    // Seleciona SVG aleatório e Palavra aleatória, garantindo que não são do mesmo par
+                    // Para randomScale 1, pegamos dois índices diferentes do array embaralhado
+                    const idxSVG = availableIndices.pop();
+                    // Se o array esvaziar, pegamos do início ou de uma cópia
+                    const idxPalavra = availableIndices.length > 0 ? availableIndices.pop() : (idxSVG + 1) % inputsData.length;
+
+                    const dataSVG = inputsData[idxSVG];
+                    const dataPalavra = inputsData[idxPalavra];
+
+                    inputSVG = dataSVG.svg;
+                    inputID_SVG = dataSVG.id;
+
+                    inputPalavra = dataPalavra.palavra;
+                    inputArtigo = dataPalavra.artigo;
+                    inputID_Palavra = dataPalavra.id;
+
+                }
+
+
+                userInputData[i] = {
+                    palavra: inputPalavra,
+                    artigo: inputArtigo,
+                    svg: inputSVG,
+                    ID_SVG: inputID_SVG,
+                    ID_Palavra: inputID_Palavra
+                };
+            }
+
+
+        }
+
+        async function updateScene(index, shouldPlayAudio = true) {
+            if (sceneData.length === 0 || isTransitioning) return;
+            isTransitioning = true;
+
+            const scene = sceneData[index];
+            const input = userInputData[scene.inputIndex - 1];
+
+            // 1. Iniciar Fade Out (Esconder camadas atuais)
+            layers.forEach(l => l.classList.add('layer-hidden'));
+            textoContorno.style.opacity = 0;
+            textoLegenda.style.opacity = 0;
+
+            // 2. Lista de imagens para Pré-carregamento
+            const imagesToPreload = [];
+            if (scene.layer_1) imagesToPreload.push(scene.layer_1);
+            if (scene.layer_3) imagesToPreload.push(scene.layer_3);
+            if (input && input.svg && !input.svg.startsWith('<svg')) {
+                imagesToPreload.push(input.svg);
+            }
+
+            // 3. Executar o Pré-carregamento antes de mudar os SRCs visíveis
+            await preloadImages(imagesToPreload);
+
+            // 4. Pequena pausa para garantir que o Fade Out visual terminou
+            setTimeout(() => {
+                // --- PROCESSAMENTO DE TEXTO ---
+                let textoParaExibir = scene.texto;
+                if (textoParaExibir.includes("1") || textoParaExibir.includes("2") || textoParaExibir.includes("3")) {
+                    const input1 = userInputData[scene.inputIndex - 1];
+                    const input2 = userInputData[2]; // Índice fixo conforme o teu original
+                    const input3 = userInputData[3]; // Índice fixo conforme o teu original
+
+                    if (input1) {
+                        const peca1 = scene.artigo ? (input1.artigo || "") + ' <span class="inputPalavra">' + input1.palavra + '</span>' : '<span class="inputPalavra">' + input1.palavra + '</span>';
+                        textoParaExibir = textoParaExibir.replace("1", peca1);
+                    }
+                    if (input2) {
+                        const peca2 = scene.artigo ? (input2.artigo || "") + ' <span class="inputPalavra">' + input2.palavra + '</span>' : '<span class="inputPalavra">' + input2.palavra + '</span>';
+                        textoParaExibir = textoParaExibir.replace("2", peca2);
+                    }
+                    if (input3) {
+                        const peca3 = scene.artigo ? (input3.artigo || "") + ' <span class="inputPalavra">' + input3.palavra + '</span>' : '<span class="inputPalavra">' + input3.palavra + '</span>';
+                        textoParaExibir = textoParaExibir.replace("3", peca3);
+                    }
+                }
+
+                textoContorno.innerHTML = textoParaExibir;
+                textoLegenda.innerHTML = textoParaExibir;
+
+                // --- ATUALIZAÇÃO DAS CAMADAS (Imagens já em Cache) ---
+                const layer1Container = document.getElementById('layer-1');
+                const layer2Container = document.getElementById('layer-2');
+                const layer3Container = document.getElementById('layer-3');
+
+                // Camada 1
+                if (scene.layer_1) {
+                    imgLayer1.src = scene.layer_1;
+                    layer1Container.style.zIndex = scene.layer_1_zIndex;
+                    layer1Container.setAttribute('data-speed', scene.layer_1_DataSpeed);
+                }
+
+                // Camada 2 (Input Dinâmico)
+                const hasValidInputIndex = scene.inputIndex > 0;
+                if (hasValidInputIndex && input) {
+                    if (input.svg.trim().startsWith('<svg')) {
+                        imgLayer2.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(input.svg.trim());
+                    } else {
+                        imgLayer2.src = input.svg;
+                    }
+                    layer2Container.style.display = 'block';
+                    layer2Container.style.zIndex = scene.inputZIndex;
+                    layer2Container.setAttribute('data-speed', scene.inputDataSpeed);
+                } else {
+                    layer2Container.style.display = 'none';
+                }
+
+                // Camada 3
+                if (scene.layer_3) {
+                    imgLayer3.src = scene.layer_3;
+                    layer3Container.style.zIndex = scene.layer_3_zIndex;
+                    layer3Container.setAttribute('data-speed', scene.layer_3_DataSpeed);
+                }
+
+                // --- GESTÃO DE ÁUDIO ---
+                if (scene.audio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                    if (shouldPlayAudio) {
+                        currentAudio.src = scene.audio;
+                        currentAudio.play().catch(e => console.log("Áudio bloqueado:", e));
+                    }
+                }
+
+                if (scene.audioBG) {
+                    let nextSrc = scene.audioBG;
+                    if (!currentBGAudio.src || !currentBGAudio.src.includes(nextSrc)) {
+                        currentBGAudio.pause();
+                        currentBGAudio.src = nextSrc;
+                        currentBGAudio.loop = true;
+                        currentBGAudio.volume = scene.audioBG_volume || 1;
+                        if (shouldPlayAudio) {
+                            currentBGAudio.play().catch(e => console.log("Áudio BG bloqueado:", e));
+                        }
+                    }
+                }
+
+                // --- FINALIZAÇÃO (Fade In) ---
+                document.getElementById('titulo').style.display = 'none';
+                document.querySelectorAll('.content').forEach(c => c.style.display = "block");
+
+                layers.forEach(l => {
+                    if (l.id !== 'layer-2' || (l.id === 'layer-2' && hasValidInputIndex)) {
+                        l.style.display = "block";
+                        l.classList.remove('layer-hidden');
+                    }
+                });
+
+                textoContorno.style.opacity = 1;
+                textoLegenda.style.opacity = 1;
+
+                setTimeout(() => { isTransitioning = false; }, 500);
+            }, 500);
+        }
+
+        window.addEventListener('click', (e) => {
+            // Só permite o clique se o estado for 2 (Experiência em curso)
+            if (estado !== 2 || sceneData.length === 0 || isTransitioning) return;
+
+            // Se o clique for num botão ou input, não muda a cena
+            if (e.target.tagName === 'BUTTON' || e.target.contentEditable === "true") return;
+
+            const screenWidth = window.innerWidth;
+            const clickX = e.clientX;
+
+            if (clickX > screenWidth / 2) {
+                currentIndex = (currentIndex + 1) % sceneData.length;
+            } else {
+                currentIndex = (currentIndex - 1 + sceneData.length) % sceneData.length;
+            }
+
+            updateScene(currentIndex, true);
+        });
+
+        // Listener para Desktop (Mouse)
+        window.addEventListener('mousemove', (e) => {
+            // Agora funciona em qualquer estado (0, 1 ou 2)
+            const normalizedX = (e.clientX / window.innerWidth) - 0.5;
+            aplicarParallax(normalizedX);
+        });
+
+        // Listener para Mobile (Giroscópio)
+        window.addEventListener('deviceorientation', (e) => {
+            let inclinacao = e.gamma;
+            if (inclinacao !== null) {
+                // Normaliza o movimento entre -0.5 e 0.5
+                let normalizedX = Math.max(-30, Math.min(30, inclinacao)) / 60;
+                aplicarParallax(normalizedX);
+            }
+        });
+
+        // Função centralizada para mover as camadas
+        function aplicarParallax(valorNormalizado) {
+            layers.forEach(layer => {
+                const speed = parseFloat(layer.getAttribute('data-speed'));
+                const xOffset = valorNormalizado * speed * 0.5;
+                layer.style.transform = `translate(calc(-50% + ${xOffset}px), -50%)`;
+            });
+        }
+
+
+        function preloadImages(urls) {
+            const promises = urls.filter(url => url && url.trim() !== "").map(url => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.src = url;
+                    img.onload = resolve;
+                    img.onerror = resolve; // Resolvemos mesmo com erro para não travar a experiência
+                });
+            });
+            return Promise.all(promises);
+        }
+
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,540 @@
+[
+    {
+      "id": "1",
+      "texto": "Mary was waiting for her husband.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "svgs/1a.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "svgs/1a.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "svgs/1b.svg", "zIndex": 3, "dataSpeed": 80 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/burning-fireplace-crackling-fire-sounds.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "2",
+      "texto": "Hullo darling. I'm home.",
+      "background_color": "#ad0e0e",
+      "shadow_color": "#ad0e0e",
+      "AllTextBeige": true,
+      "layers": [
+        { "src": "svg/red.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/door-open.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "3",
+      "texto": "Drink some 1, dear.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "svgs/3a.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "svgs/3b.svg", "zIndex": 3, "dataSpeed": 80 }
+      ],
+      "inputs": [
+        { "id": 1, "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/ice-cubes.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "4",
+      "texto": "The husband drank it all at once.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [
+        { "id": 1, "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/drinking.mp3",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "5",
+      "texto": "What's the matter, dear?",
+      "background_color": "#ad0e0e",
+      "shadow_color": "#ad0e0e",
+      "AllTextBeige": true,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/som_1.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "6",
+      "texto": "The husband wanted to break up.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/glass-breaking.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "7",
+      "texto": "I'm going to make dinner. - Said Mary as she went to the kitchen.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "svgs/7a.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "svgs/7b.svg", "zIndex": 3, "dataSpeed": 80 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/stairs.mp3",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "8",
+      "texto": "She opened the freezer and took out 2.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "svgs/8a.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "svgs/8b.svg", "zIndex": 3, "dataSpeed": 80 }
+      ],
+      "inputs": [
+        { "id": 2, "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "artigos": [false, true, false, false, false, false],
+      "audio": {
+        "effect": "audio/refridgerator.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "9",
+      "texto": "I don't want to eat. I'm leaving you. - Said the husband.",
+      "background_color": "#ad0e0e",
+      "shadow_color": "#ad0e0e",
+      "AllTextBeige": true,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/som_1.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "10",
+      "texto": "Mary hitted him on the head with 2.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [
+        { "id": 2, "zIndex": 2, "dataSpeed": 20 }
+      ],
+
+      "artigos": [false, true, false, false, false, false],
+      "audio": {
+        "effect": "audio/hit-fall.mp3",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "11",
+      "texto": "Husband died.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/burning-fireplace-crackling-fire-sounds.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "12",
+      "texto": "What have I done? - Said Mary.",
+      "background_color": "#ad0e0e",
+      "shadow_color": "#ad0e0e",
+      "AllTextBeige": true,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/woman-scream.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "13",
+      "texto": "I need an alibi. - She thought as she put the 2 in the stove.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [
+        { "id": 2, "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/oven.mp3",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "14",
+      "texto": "And left to go to the store.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "",
+        "background": "audio/night-walk.mp3",
+        "bgVolume": 1
+      }
+    },
+    {
+      "id": "15",
+      "texto": "Hullo Sam. May I have this 3, please? - Said Mary to the storekeeper.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "svgs/15a.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "svgs/15b.svg", "zIndex": 3, "dataSpeed": 80 }
+      ],
+      "inputs": [
+        { "id": 3, "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/som_1.wav",
+        "background": "audio/loop3.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "16",
+      "texto": "Oh and this 4 as well. - She added.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "svgs/15a.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "svgs/16b.svg", "zIndex": 3, "dataSpeed": 80 }
+      ],
+      "inputs": [
+        { "id": 4, "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/som_1.wav",
+        "background": "audio/loop3.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "17",
+      "texto": "Do you want 5 for dessert? - Asked Sam.<br>Yes, please. John loves that! - Replied Mary.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [
+        { "id": 5, "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "artigos": [false, false, false, false, true, false],
+      "audio": {
+        "effect": "audio/som_1.wav",
+        "background": "audio/loop3.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "18",
+      "texto": "And she went back home.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": " ",
+        "background": "audio/night-walk.mp3",
+        "bgVolume": 1
+      }
+    },
+    {
+      "id": "19",
+      "texto": "She screamed seeing the husband on the floor.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/woman-crying.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "20",
+      "texto": "And called the police.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "svgs/20a.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/dial-911.mp3",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "21",
+      "texto": "A few minutes later, the police arrived.",
+      "background_color": "#ad0e0e",
+      "shadow_color": "#ad0e0e",
+      "AllTextBeige": true,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/ambulance-going-by.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "22",
+      "texto": " ",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/knock-door.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "23",
+      "texto": "The murder weapon must have been a big 6. - Said one of the policemen.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [
+        { "id": 6, "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/radio-police.mp3",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "24",
+      "texto": "Please, drink some 1. - Said Mary",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [
+        { "id": 1, "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/ice-cubes.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "25",
+      "texto": "And please eat some dinner. - Said her as they all drank the 1.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [
+        { "id": 1, "zIndex": 2, "dataSpeed": 20 }
+      ],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/som_1.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "26",
+      "texto": "So they ate 2 with 3 and 4.",
+      "background_color": "#ffffe2",
+      "shadow_color": "#ffffe2",
+      "AllTextBeige": false,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [
+        { "id": 2, "zIndex": 2, "dataSpeed": 20, "top": "30%" },
+        { "id": 3, "zIndex": 4, "dataSpeed": 20, "top": "70%" },
+        { "id": 4, "zIndex": 5, "dataSpeed": 20, "top": "80%" }
+      ],
+      "artigos": [false, false, false, true, false, false],
+      "audio": {
+        "effect": "audio/eating-plate.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    },
+    {
+      "id": "27",
+      "texto": "And in the other room, Mary started to giggle.",
+      "background_color": "#ad0e0e",
+      "shadow_color": "#ad0e0e",
+      "AllTextBeige": true,
+      "layers": [
+        { "src": "imagem_CENA 8.svg", "zIndex": 1, "dataSpeed": 10 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 2, "dataSpeed": 20 },
+        { "src": "imagem_CENA 8.svg", "zIndex": 3, "dataSpeed": 30 }
+      ],
+      "inputs": [],
+      "artigos": [false, false, false, false, false, false],
+      "audio": {
+        "effect": "audio/giggle.wav",
+        "background": "audio/loop.wav",
+        "bgVolume": 0.1
+      }
+    }
+  ]
